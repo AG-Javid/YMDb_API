@@ -9,7 +9,7 @@ class UserAdmin(admin.ModelAdmin):
         'username',
         'email',
         'first_name',
-        'second_name',
+        'last_name',
         'bio',
         'role',
         'confirmation_code',

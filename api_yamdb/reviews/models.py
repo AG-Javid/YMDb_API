@@ -48,6 +48,7 @@ class User(AbstractUser):
         verbose_name='Пользовательская роль'
     )
     confirmation_code = models.CharField(
+        max_length=EMAIL_MAX_LEN,
         null=True,
         blank=False,
         verbose_name='Код подтверждения'
