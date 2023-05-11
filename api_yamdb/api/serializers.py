@@ -39,7 +39,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    def validate_score(self, value):
+    def validate_rating(self, value):
         if 0 > value > 10:
             raise serializers.ValidationError('Оценка по шкале от 1 до 10!')
         return value
