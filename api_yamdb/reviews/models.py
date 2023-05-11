@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from .validators import validate_username
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 USERNAME_MAX_LEN = 150
 EMAIL_MAX_LEN = 254
@@ -69,3 +70,41 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Review(models.Model):
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Произведение'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Автор'
+    )
+    text = models.TextField()
+    rating = models.IntegerField(
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(10)
+        )
+    )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True
+    )
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('title', 'author', ),
+                name='unique_review'
+            )]
+        ordering = ('-pub_date', )
+
+    def __str__(self):
+        return self.text
