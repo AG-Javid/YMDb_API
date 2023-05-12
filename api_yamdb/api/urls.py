@@ -3,11 +3,9 @@ from rest_framework.routers import DefaultRouter
 
 from .views import APIGetTokenView, APISignUpView, ReviewViewSet, UsersViewSet
 
-app_name = 'api'
-
-router = DefaultRouter()
-router.register('users', UsersViewSet, basename='users')
-router.register(
+router_v1 = DefaultRouter()
+router_v1.register('users', UsersViewSet, basename='users')
+router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
     basename='reviews'
@@ -15,6 +13,6 @@ router.register(
 
 urlpatterns = [
     path('v1/auth/token/', APIGetTokenView.as_view(), name='token'),
-    path('v1/', include(router.urls)),
+    path('v1/', include(router_v1.urls)),
     path('v1/auth/signup/', APISignUpView.as_view(), name='signup')
 ]
