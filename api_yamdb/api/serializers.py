@@ -45,6 +45,17 @@ class GenreSerializer(serializers.ModelSerializer):
         exclude = ('id',)
 
 
+class GETTitleSerializer(serializers.ModelSerializer):
+    """Сериалайзер для GET запроса."""
+
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Title
+        fields = ('__all__')
+
+
 class TitleSerializer(serializers.ModelSerializer):
     """Сериалайзер для произведений."""
 
@@ -60,6 +71,12 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         exclude = ('id',)
+
+    def to_representation(self, title):
+        """Определение сериалайзера."""
+        
+        serializer = GETTitleSerializer
+        return serializer.data
 
 
 class ReviewSerializer(serializers.ModelSerializer):

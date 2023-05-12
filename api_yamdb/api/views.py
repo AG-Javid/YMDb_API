@@ -14,7 +14,8 @@ from reviews.models import User, Category, Genre, Title
 from .permissions import AdminOnly, StaffOrAuthorOrReadOnly
 from .serializers import (GetTokenSerializer, ReviewSerializer,
                           SignUpSerializer, UsersSerializer, 
-                          TitleSerializer, CategorySerializer, GenreSerializer)
+                          TitleSerializer, CategorySerializer,
+                          GETTitleSerializer, GenreSerializer)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -120,6 +121,13 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     permission_classes = (StaffOrAuthorOrReadOnly, AdminOnly)
+
+    def get_serializer_class(self):
+        """Определение сериалайзера."""
+
+        if self.request.method == 'GET':
+            return GETTitleSerializer
+        return TitleSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
