@@ -50,6 +50,7 @@ class GETTitleSerializer(serializers.ModelSerializer):
 
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(many=True, read_only=True)
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
@@ -74,7 +75,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def to_representation(self, title):
         """Определение сериалайзера."""
-        
+
         serializer = GETTitleSerializer
         return serializer.data
 

@@ -1,6 +1,7 @@
 import uuid
 
 from django.core.mail import EmailMessage
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -118,7 +119,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для произведений."""
 
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__rating'))
     serializer_class = TitleSerializer
     permission_classes = (StaffOrAuthorOrReadOnly, AdminOnly)
 
