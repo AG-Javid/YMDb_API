@@ -9,11 +9,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import User
+from reviews.models import Review, Title, User
 
 from .permissions import AdminOnly, StaffOrAuthorOrReadOnly
-from .serializers import (GetTokenSerializer, ReviewSerializer,
-                          SignUpSerializer, UsersSerializer)
+from .serializers import (CommentSerializer, GetTokenSerializer,
+                          ReviewSerializer, SignUpSerializer, UsersSerializer)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -113,3 +113,21 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title = self.get_title()
         serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = (StaffOrAuthorOrReadOnly,)
+
+    def get_review(self):
+        return get_object_or_404(
+            Review,
+            id=self.kwargs.get('title_id'))
+
+    def get_queryset(self):
+        review = self.get_review()
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        review = self.get_review()
+        serializer.save(author=self.request.user, review=review)
