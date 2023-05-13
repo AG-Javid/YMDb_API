@@ -1,6 +1,7 @@
 import uuid
 
 from django.core.mail import EmailMessage
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -9,11 +10,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Review, Title, User
+
+from reviews.models import Category, Genre, Review, Title, User
 
 from .permissions import AdminOnly, StaffOrAuthorOrReadOnly
-from .serializers import (CommentSerializer, GetTokenSerializer,
-                          ReviewSerializer, SignUpSerializer, UsersSerializer)
+from .serializers import (GetTokenSerializer, ReviewSerializer,
+                          SignUpSerializer, UsersSerializer, 
+                          TitleSerializer, CategorySerializer,
+                          GETTitleSerializer, GenreSerializer)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -95,6 +99,37 @@ class APISignUpView(APIView):
         }
         self.send_email(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """Вьюсет для категорий."""
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (StaffOrAuthorOrReadOnly,)
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    """Вьюсет для жанров."""
+
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (StaffOrAuthorOrReadOnly,)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """Вьюсет для произведений."""
+
+    queryset = Title.objects.annotate(rating=Avg('reviews__rating'))
+    serializer_class = TitleSerializer
+    permission_classes = (StaffOrAuthorOrReadOnly, AdminOnly)
+
+    def get_serializer_class(self):
+        """Определение сериалайзера."""
+
+        if self.request.method == 'GET':
+            return GETTitleSerializer
+        return TitleSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

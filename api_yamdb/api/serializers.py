@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from reviews.models import Comment, Review, User
+
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -27,6 +28,57 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'username')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Сериалайзер для категорий."""
+
+    class Meta:
+        model = Category
+        exclude = ('id',)
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    """Сериалайзер для жанров."""
+
+    class Meta:
+        model = Genre
+        exclude = ('id',)
+
+
+class GETTitleSerializer(serializers.ModelSerializer):
+    """Сериалайзер для GET запроса."""
+
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(many=True, read_only=True)
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Title
+        fields = ('__all__')
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    """Сериалайзер для произведений."""
+
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genre.objects.all()
+    )
+
+    class Meta:
+        model = Title
+        exclude = ('id',)
+
+    def to_representation(self, title):
+        """Определение сериалайзера."""
+
+        serializer = GETTitleSerializer
+        return serializer.data
 
 
 class ReviewSerializer(serializers.ModelSerializer):
