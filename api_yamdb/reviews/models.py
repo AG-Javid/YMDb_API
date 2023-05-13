@@ -1,10 +1,11 @@
 from datetime import datetime
 
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 
 from .validators import validate_username
-from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+
 
 USERNAME_MAX_LEN = 150
 EMAIL_MAX_LEN = 254
@@ -221,6 +222,34 @@ class Review(models.Model):
                 name='unique_review'
             )]
         ordering = ('-pub_date', )
+
+    def __str__(self):
+        return self.text
+
+
+class Comment(models.Model):
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='отзыв'
+    )
+    text = models.TextField()
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='автор'
+    )
+    pub_date = models.DateTimeField(
+        'дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
 
     def __str__(self):
         return self.text
