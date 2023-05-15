@@ -3,9 +3,11 @@ import uuid
 from django.core.mail import EmailMessage
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -14,7 +16,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Review, Title, User
 
 from api_yamdb.settings import EMAIL_HOST_USER
-from .permissions import AdminOnly, StaffOrAuthorOrReadOnly
+from .permissions import AdminOnly, AdminOrReadOnly, StaffOrAuthorOrReadOnly
 from .serializers import (GetTokenSerializer, ReviewSerializer,
                           SignUpSerializer, UsersSerializer,
                           TitleSerializer, CategorySerializer,
@@ -25,7 +27,7 @@ from .serializers import (GetTokenSerializer, ReviewSerializer,
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (AdminOnly, permissions.IsAuthenticated,)
+    permission_classes = (AdminOnly,)
     filter_backends = (SearchFilter,)
     lookup_field = 'username'
     search_fields = ('=username',)
@@ -33,7 +35,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     @action(
         methods=['GET', 'PATCH'],
         detail=False,
-        permission_classes=(permissions.IsAuthenticated,),
+        permission_classes=(IsAuthenticated,),
         url_path='me')
     def get_self_info(self, request):
         serializer = self.get_serializer(
@@ -109,7 +111,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (StaffOrAuthorOrReadOnly,)
+    permission_classes = (AdminOrReadOnly,)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -117,15 +119,15 @@ class GenreViewSet(viewsets.ModelViewSet):
 
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (StaffOrAuthorOrReadOnly,)
+    permission_classes = (AdminOrReadOnly,)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для произведений."""
 
-    queryset = Title.objects.annotate(rating=Avg('reviews__rating'))
+    queryset = Title.objects.annotate(rating=Avg('reviews__rating')).all()
     serializer_class = TitleSerializer
-    permission_classes = (StaffOrAuthorOrReadOnly, AdminOnly)
+    permission_classes = (AdminOrReadOnly,)
 
     def get_serializer_class(self):
         """Определение сериалайзера."""
@@ -137,7 +139,8 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (StaffOrAuthorOrReadOnly,)
+    permission_classes = (StaffOrAuthorOrReadOnly,
+                          IsAuthenticatedOrReadOnly)
 
     def get_title(self):
         return get_object_or_404(

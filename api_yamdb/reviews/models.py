@@ -14,6 +14,7 @@ USERNAME_MAX_LEN = 150
 EMAIL_MAX_LEN = 254
 ROLE_MAX_LEN = 20
 CATEGORY_MAX_LEN_SLUG = 50
+TITLE_MAX_LEN = 256
 
 
 class UserRole(models.TextChoices):
@@ -137,7 +138,7 @@ class Title(models.Model):
     """Модель произведений."""
 
     name = models.CharField(
-        max_length=EMAIL_MAX_LEN,
+        max_length=TITLE_MAX_LEN,
         verbose_name='Название'
     )
     year = models.PositiveIntegerField(
