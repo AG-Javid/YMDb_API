@@ -18,7 +18,7 @@ class GetTokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField(
         required=True)
 
-    class Mets:
+    class Meta:
         model = User
         fields = ('username', 'confirmation_code')
 

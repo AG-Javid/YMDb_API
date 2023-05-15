@@ -13,6 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title, User
 
+from api_yamdb.settings import EMAIL_HOST_USER
 from .permissions import AdminOnly, StaffOrAuthorOrReadOnly
 from .serializers import (GetTokenSerializer, ReviewSerializer,
                           SignUpSerializer, UsersSerializer,
@@ -77,7 +78,8 @@ class APISignUpView(APIView):
         email = EmailMessage(
             subject=data['email_subject'],
             body=data['email_body'],
-            to=(data['to_email'],)
+            to=(data['to_email'],),
+            from_email=EMAIL_HOST_USER
         )
         email.send()
 
