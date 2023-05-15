@@ -15,9 +15,10 @@ from reviews.models import Category, Genre, Review, Title, User
 
 from .permissions import AdminOnly, StaffOrAuthorOrReadOnly
 from .serializers import (GetTokenSerializer, ReviewSerializer,
-                          SignUpSerializer, UsersSerializer, 
+                          SignUpSerializer, UsersSerializer,
                           TitleSerializer, CategorySerializer,
-                          GETTitleSerializer, GenreSerializer)
+                          GETTitleSerializer, GenreSerializer,
+                          CommentSerializer)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -76,7 +77,7 @@ class APISignUpView(APIView):
         email = EmailMessage(
             subject=data['email_subject'],
             body=data['email_body'],
-            to=data['to_email']
+            to=(data['to_email'],)
         )
         email.send()
 
@@ -99,7 +100,7 @@ class APISignUpView(APIView):
         }
         self.send_email(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """Вьюсет для категорий."""
