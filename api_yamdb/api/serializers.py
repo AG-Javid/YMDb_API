@@ -24,6 +24,16 @@ class GetTokenSerializer(serializers.ModelSerializer):
 
 
 class SignUpSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        return User.objects.create(validated_data)
+
+    def validate(self, data):
+        email = data['email']
+        username = data['username']
+        if (User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists()):
+            raise serializers.ValidationError(
+                'Пользователь с такими же данными существует.')
+        return data
 
     class Meta:
         model = User
@@ -55,7 +65,7 @@ class GETTitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('__all__')
+        fields = '__all__'
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -67,12 +77,13 @@ class TitleSerializer(serializers.ModelSerializer):
     )
     genre = serializers.SlugRelatedField(
         slug_field='slug',
-        queryset=Genre.objects.all()
+        queryset=Genre.objects.all(),
+        many=True
     )
 
     class Meta:
         model = Title
-        exclude = ('id',)
+        fields = '__all__'
 
     def to_representation(self, title):
         """Определение сериалайзера."""

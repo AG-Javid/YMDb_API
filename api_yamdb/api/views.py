@@ -16,6 +16,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Review, Title, User
 
 from api_yamdb.settings import EMAIL_HOST_USER
+from .mixins import CustomMixin
 from .permissions import AdminOnly, AdminOrReadOnly, StaffOrAuthorOrReadOnly
 from .serializers import (GetTokenSerializer, ReviewSerializer,
                           SignUpSerializer, UsersSerializer,
@@ -88,25 +89,25 @@ class APISignUpView(APIView):
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data.get("username")
-        email = serializer.validated_data.get("email")
         user, created = User.objects.get_or_create(
-            username=username, email=email)
+            username=serializer.validated_data['username'],
+            email=serializer.validated_data['email']
+        )
         user.confirmation_code = generate_confirm_code()
         user.save()
         email_body = (
-            f'Здравствуйте, {username}.'
+            f'Здравствуйте, {user.username}.'
             f'\nВаш код подтверждения для API: {user.confirmation_code}')
         data = {
+            'email_subject': 'Код подтверждения для доступа к API.',
             'email_body': email_body,
-            'to_email': email,
-            'email_subject': 'Код подтверждения для доступа к API.'
+            'to_email': user.email,
         }
         self.send_email(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(CustomMixin):
     """Вьюсет для категорий."""
 
     queryset = Category.objects.all()
@@ -114,7 +115,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = (AdminOrReadOnly,)
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(CustomMixin):
     """Вьюсет для жанров."""
 
     queryset = Genre.objects.all()

@@ -18,9 +18,9 @@ TITLE_MAX_LEN = 256
 
 
 class UserRole(models.TextChoices):
-    ADMIN = 'admin', 'Администратор'
-    MODERATOR = 'moderator', 'Модератор'
-    USER = 'user', 'Пользователь'
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
 
 
 class User(AbstractUser):
@@ -64,17 +64,21 @@ class User(AbstractUser):
     )
 
     @property
-    def is_admin(self):
-        return (
-            self.role == UserRole.ADMIN or self.is_staff or self.is_superuser)
+    def is_user(self):
+        return self.role == UserRole.USER
 
     @property
     def is_moderator(self):
         return self.role == UserRole.MODERATOR
 
+    @property
+    def is_admin(self):
+        return self.role == UserRole.ADMIN
+
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+        ordering = ('id',)
 
     def __str__(self):
         return self.username
@@ -91,6 +95,7 @@ class Category(models.Model):
         max_length=CATEGORY_MAX_LEN_SLUG,
         verbose_name='Slug категории',
         unique=True,
+        db_index=True,
         validators=[
             RegexValidator(
                 regex=r'^[-a-zA-Z0-9_]+$'
@@ -101,7 +106,6 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -111,13 +115,14 @@ class Genre(models.Model):
     """Модель жанров."""
 
     name = models.CharField(
-        max_length=EMAIL_MAX_LEN,
+        max_length=TITLE_MAX_LEN,
         verbose_name='Название жанра'
     )
     slug = models.SlugField(
         max_length=CATEGORY_MAX_LEN_SLUG,
         verbose_name='Slug жанра',
         unique=True,
+        db_index=True,
         validators=[
             RegexValidator(
                 regex=r'^[-a-zA-Z0-9_]+$'
@@ -128,7 +133,6 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -161,6 +165,7 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         through='GenreTitle',
+        db_index=True,
         related_name='titles',
         verbose_name='Жанр'
     )
@@ -168,7 +173,6 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
-        ordering = ('name', 'year')
 
     def __str__(self):
         return self.name
@@ -189,9 +193,8 @@ class GenreTitle(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Произведение'
-        verbose_name_plural = 'Произведения'
-        ordering = ('id',)
+        verbose_name = 'Произведение и жанр'
+        verbose_name_plural = 'Произведения и жанры'
 
 
 class Review(models.Model):
@@ -207,7 +210,7 @@ class Review(models.Model):
         related_name='reviews',
         verbose_name='Автор'
     )
-    text = models.TextField()
+    text = models.TextField(verbose_name='Текст отзыва')
     rating = models.IntegerField(
         validators=(
             MinValueValidator(1),
@@ -221,9 +224,10 @@ class Review(models.Model):
 
     class Meta:
         verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(
-                fields=('title', 'author', ),
+                fields=('title', 'author'),
                 name='unique_review'
             )]
         ordering = ('-pub_date', )
@@ -239,7 +243,7 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='Отзыв'
     )
-    text = models.TextField()
+    text = models.TextField(verbose_name='Текст комментария')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -254,6 +258,7 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.text
