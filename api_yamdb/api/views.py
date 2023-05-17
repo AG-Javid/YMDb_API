@@ -1,26 +1,25 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import (AllowAny, IsAuthenticated)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
-
 from reviews.models import Category, Genre, Review, Title, User
+
 from .confirm import send_conf_code
 from .filters import TitleFilter
 from .mixins import CustomMixin
 from .permissions import AdminOnly, AdminOrReadOnly, ModerOrAuthorOrReadOnly
-from .serializers import (GetTokenSerializer, ReviewSerializer,
-                          SignUpSerializer, UsersSerializer,
-                          TitleSerializer, CategorySerializer,
-                          GETTitleSerializer, GenreSerializer,
-                          CommentSerializer)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, GETTitleSerializer,
+                          GetTokenSerializer, ReviewSerializer,
+                          SignUpSerializer, TitleSerializer, UsersSerializer)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -123,7 +122,7 @@ class GenreViewSet(CustomMixin):
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для произведений."""
 
-    queryset = Title.objects.annotate(rating=Avg('reviews__rating')).all()
+    queryset = Title.objects.annotate(score=Avg('reviews__score')).all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     serializer_class = TitleSerializer

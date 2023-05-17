@@ -24,7 +24,7 @@ class ReviewAdmin(admin.ModelAdmin):
         'title',
         'text',
         'author',
-        'rating',
+        'score',
     )
     search_fields = ('pub_date',)
     list_filter = ('pub_date',)

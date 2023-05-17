@@ -100,11 +100,11 @@ class Test04TitleAPI:
             if element['name'] == post_data_1['name']:
                 title = element
 
-        assert title.get('rating') is None, (
+        assert title.get('score') is None, (
             'Проверьте, что при GET-запросе неавторизованного '
             f'пользователя к `{url}` возвращается информация о рейтинге '
             'произведений. Если отзывов о произведении нет - значением '
-            'поля `rating` должено быть `None`.'
+            'поля `score` должено быть `None`.'
         )
         assert title.get('category') == categories[0], (
             'Проверьте, что при GET-запросе неавторизованного '

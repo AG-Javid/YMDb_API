@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
-
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
@@ -63,7 +62,7 @@ class GETTitleSerializer(serializers.ModelSerializer):
 
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(many=True, read_only=True)
-    rating = serializers.IntegerField(read_only=True)
+    score = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
@@ -114,7 +113,7 @@ class ReviewSerializer(serializers.ModelSerializer):
                 )
         return data
 
-    def validate_rating(self, value):
+    def validate_score(self, value):
         if 0 > value > 10:
             raise serializers.ValidationError('Оценка по шкале от 1 до 10!')
         return value
