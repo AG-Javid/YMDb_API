@@ -1031,7 +1031,7 @@ components:
         year:
           type: integer
           title: Год выпуска
-        rating:
+        score:
           type: integer
           readOnly: True
           title: Рейтинг на основе отзывов, если отзывов нет — `None`

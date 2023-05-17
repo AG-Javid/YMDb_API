@@ -1,14 +1,11 @@
 from datetime import datetime
 
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import (
-    MaxValueValidator,
-    MinValueValidator,
-    RegexValidator)
+from django.core.validators import (MaxValueValidator, MinValueValidator,
+                                    RegexValidator)
 from django.db import models
 
 from .validators import validate_username
-
 
 USERNAME_MAX_LEN = 150
 EMAIL_MAX_LEN = 254
@@ -204,7 +201,7 @@ class Review(models.Model):
         verbose_name='Автор'
     )
     text = models.TextField(verbose_name='Текст отзыва')
-    rating = models.IntegerField(
+    score = models.IntegerField(
         validators=(
             MinValueValidator(1),
             MaxValueValidator(10)
