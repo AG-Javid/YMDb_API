@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-
+from rest_framework.generics import get_object_or_404
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
@@ -88,11 +87,9 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
 
-    def to_representation(self, title):
+    def to_representation(self, instance):
         """Определение сериалайзера."""
-
-        serializer = GETTitleSerializer
-        return serializer.data
+        return GETTitleSerializer(instance).data
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -105,6 +102,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    def validate(self, data):
+        request = self.context['request']
+        if request.method == 'POST':
+            title_id = self.context['view'].kwargs['title_id']
+            author = self.context['request'].user
+            title = get_object_or_404(Title, pk=title_id)
+            if Review.objects.filter(title=title, author=author).exists():
+                raise serializers.ValidationError(
+                    'Можно оставить только один отзыв.'
+                )
+        return data
+
     def validate_rating(self, value):
         if 0 > value > 10:
             raise serializers.ValidationError('Оценка по шкале от 1 до 10!')
@@ -113,13 +122,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Review
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('title', 'author',),
-                message='Один отзыв на одно произведение!'
-            )
-        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
