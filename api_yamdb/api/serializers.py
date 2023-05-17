@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -24,15 +25,17 @@ class GetTokenSerializer(serializers.ModelSerializer):
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    def create(self, validated_data):
-        return User.objects.create(validated_data)
-
     def validate(self, data):
         email = data['email']
         username = data['username']
-        if (User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists()):
-            raise serializers.ValidationError(
-                'Пользователь с такими же данными существует.')
+        if (
+            User.objects.filter(email=email).exists()
+            and User.objects.get(email=email).username != username
+            ) or (
+                User.objects.filter(username=username).exists()
+                and User.objects.get(username=username).email != email):
+            raise ValidationError(
+                'Пользователь с такими данными уже существует')
         return data
 
     class Meta:
@@ -45,7 +48,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        exclude = ('id',)
+        fields = ('name', 'slug')
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -53,7 +56,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        exclude = ('id',)
+        fields = ('name', 'slug')
 
 
 class GETTitleSerializer(serializers.ModelSerializer):

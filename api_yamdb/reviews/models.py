@@ -17,13 +17,17 @@ CATEGORY_MAX_LEN_SLUG = 50
 TITLE_MAX_LEN = 256
 
 
-class UserRole(models.TextChoices):
+class User(AbstractUser):
     USER = 'user'
     MODERATOR = 'moderator'
     ADMIN = 'admin'
 
+    ROLE_CHOICES = (
+        (USER, 'User'),
+        (MODERATOR, 'Moderator'),
+        (ADMIN, 'Admin'),
+    )
 
-class User(AbstractUser):
     username = models.CharField(
         unique=True,
         max_length=USERNAME_MAX_LEN,
@@ -51,29 +55,18 @@ class User(AbstractUser):
     )
     role = models.CharField(
         max_length=ROLE_MAX_LEN,
-        choices=UserRole.choices,
-        default='user',
-        blank=True,
+        choices=ROLE_CHOICES,
+        default=USER,
         verbose_name='Пользовательская роль'
     )
-    confirmation_code = models.CharField(
-        max_length=EMAIL_MAX_LEN,
-        null=True,
-        blank=False,
-        verbose_name='Код подтверждения'
-    )
-
-    @property
-    def is_user(self):
-        return self.role == UserRole.USER
 
     @property
     def is_moderator(self):
-        return self.role == UserRole.MODERATOR
+        return self.role == self.MODERATOR
 
     @property
     def is_admin(self):
-        return self.role == UserRole.ADMIN
+        return self.role == self.ADMIN
 
     class Meta:
         verbose_name = 'Пользователь'
