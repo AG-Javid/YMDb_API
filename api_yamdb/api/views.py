@@ -86,13 +86,13 @@ class APISignUpView(APIView):
         serializer.is_valid(raise_exception=True)
         try:
             user, created = User.objects.get_or_create(
-                username=serializer.validated_data.get('username'),
-                email=serializer.validated_data.get('email')
+                username=serializer.validated_data['username'],
+                email=serializer.validated_data['email']
             )
         except IntegrityError:
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
-        if user or created is not True:
+        if user or created:
             send_conf_code(serializer.data.get('username'))
         return Response(serializer.data, status=status.HTTP_200_OK)
 

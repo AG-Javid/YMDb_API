@@ -7,6 +7,7 @@ from django.db import models
 
 from .validators import validate_username
 
+
 USERNAME_MAX_LEN = 150
 EMAIL_MAX_LEN = 254
 ROLE_MAX_LEN = 20

@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from reviews.models import Category, Comment, Genre, Review, Title, User
@@ -23,17 +22,21 @@ class GetTokenSerializer(serializers.ModelSerializer):
 
 
 class SignUpSerializer(serializers.ModelSerializer):
+    username = serializers.SlugField(max_length=150)
+    email = serializers.EmailField(max_length=254)
+
+    def validate_username(self, username):
+        if username.lower() == 'me':
+            raise serializers.ValidationError(
+                {"message": "недопустимый username"})
+        return username
+
     def validate(self, data):
-        email = data['email']
-        username = data['username']
-        if (
-            User.objects.filter(email=email).exists()
-            and User.objects.get(email=email).username != username
-            ) or (
-                User.objects.filter(username=username).exists()
-                and User.objects.get(username=username).email != email):
-            raise ValidationError(
-                'Пользователь с такими данными уже существует')
+        if User.objects.filter(username=data['username']).exists():
+            user = User.objects.get(username=data['username'])
+            if user.email == data['email']:
+                return data
+            raise serializers.ValidationError({"message": "Неверный email"})
         return data
 
     class Meta:
