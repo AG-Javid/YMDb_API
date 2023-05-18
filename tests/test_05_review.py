@@ -209,10 +209,10 @@ class Test05ReviewAPI:
 
         response = admin_client.get(f'/api/v1/titles/{titles[0]["id"]}/')
         data = response.json()
-        assert data.get('score') == 4, (
+        assert data.get('rating') == 4, (
             'Проверьте, что произведениям присваивается рейтинг, '
             'равный средной оценке оставленных отзывов. '
-            'Поле `score` не найдено в ответе на GET-запрос к '
+            'Поле `rating` не найдено в ответе на GET-запрос к '
             '`/api/v1/titles/{titles_id}/` или содержит некорректное '
             'значение.'
         )
