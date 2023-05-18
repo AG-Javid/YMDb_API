@@ -6,12 +6,10 @@ from reviews.models import User
 
 
 def send_email(data):
-    email = EmailMessage(
-            subject=data['email_subject'],
-            body=data['email_body'],
-            to=(data['to_email'],),
-            from_email=EMAIL_HOST_USER
-        )
+    email = EmailMessage(subject=data['email_subject'],
+                         body=data['email_body'],
+                         to=(data['to_email'],),
+                         from_email=EMAIL_HOST_USER)
     email.send()
 
 
@@ -22,9 +20,7 @@ def send_conf_code(username):
         f'Здравствуйте, {user.username}.'
         f'\nВаш код подтверждения для API: {confirmation_code}'
     )
-    data = {
-            'email_subject': 'Код подтверждения для доступа к API.',
+    data = {'email_subject': 'Код подтверждения для доступа к API.',
             'email_body': email_body,
-            'to_email': user.email,
-            }
+            'to_email': user.email}
     send_email(data)
