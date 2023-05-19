@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django_filters',
     'api',
     'reviews',
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -112,7 +113,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-AUTH_USER_MODEL = 'reviews.User'
+AUTH_USER_MODEL = 'users.User'
 
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')

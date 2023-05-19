@@ -1,47 +1,7 @@
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
-from reviews.models import Category, Comment, Genre, Review, Title, User
 
-
-class UsersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
-
-
-class GetTokenSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(
-        required=True)
-    confirmation_code = serializers.CharField(
-        required=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'confirmation_code')
-
-
-class SignUpSerializer(serializers.ModelSerializer):
-    username = serializers.SlugField(max_length=150)
-    email = serializers.EmailField(max_length=254)
-
-    def validate_username(self, username):
-        if username.lower() == 'me':
-            raise serializers.ValidationError(
-                {"message": "недопустимый username"})
-        return username
-
-    def validate(self, data):
-        if User.objects.filter(username=data['username']).exists():
-            user = User.objects.get(username=data['username'])
-            if user.email == data['email']:
-                return data
-            raise serializers.ValidationError({"message": "Неверный email"})
-        return data
-
-    class Meta:
-        model = User
-        fields = ('email', 'username')
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -115,11 +75,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                     'Можно оставить только один отзыв.'
                 )
         return data
-
-    def validate_score(self, value):
-        if 0 > value > 10:
-            raise serializers.ValidationError('Оценка по шкале от 1 до 10!')
-        return value
 
     class Meta:
         fields = '__all__'
