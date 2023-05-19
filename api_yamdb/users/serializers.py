@@ -13,7 +13,7 @@ class UsersSerializer(serializers.ModelSerializer):
             'last_name',
             'bio',
             'role'
-            )
+        )
 
 
 class GetTokenSerializer(serializers.ModelSerializer):

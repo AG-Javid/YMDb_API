@@ -38,7 +38,7 @@ class UsersViewSet(viewsets.ModelViewSet):
         methods=['GET', 'PATCH'],
         detail=False,
         permission_classes=(IsAuthenticated,),
-        )
+    )
     def me(self, request):
         serializer = self.get_serializer(
             request.user, data=request.data, partial=True)
