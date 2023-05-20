@@ -59,3 +59,8 @@ python manage.py runserver
 ```
 http://127.0.0.1:8000/redoc/
 ```
+
+### Авторы проекта
+Павел Ермеев https://github.com/bytplokhim
+Джавид Агвердиев https://github.com/AG-Javid
+Никита Безкровный https://github.com/kilzzze

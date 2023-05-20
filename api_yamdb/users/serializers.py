@@ -36,7 +36,8 @@ class SignUpSerializer(serializers.ModelSerializer):
     def validate_username(self, username):
         if username.lower() == 'me':
             raise serializers.ValidationError(
-                {"message": "недопустимый username"})
+                {"message": "недопустимый username"}
+            )
         return username
 
     def validate(self, data):

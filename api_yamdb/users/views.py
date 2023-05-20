@@ -41,10 +41,15 @@ class UsersViewSet(viewsets.ModelViewSet):
     )
     def me(self, request):
         serializer = self.get_serializer(
-            request.user, data=request.data, partial=True)
+            request.user,
+            data=request.data,
+            partial=True
+        )
         if not serializer.is_valid():
             return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
         if request.method == 'GET':
             return Response(serializer.data, status=status.HTTP_200_OK)
         serializer.validated_data['role'] = request.user.role
